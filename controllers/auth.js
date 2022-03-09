@@ -14,8 +14,16 @@ module.exports = {
         username: req.body.username,
         phone_number: req.body.phone_number,
       })
-      .then((user) => res.status(201).send(user))
-      .catch((error) => res.status(400).send(error));
+      .then((user) => {
+        res.status(201).send({
+          success: true,
+          message: "Register Success",
+        })
+      })
+      .catch((err) => res.status(400).send({
+        success: false,
+        message: err.message
+      }));
   },
     
   login(req, res) {
@@ -35,10 +43,13 @@ module.exports = {
         var passwordIsValid = bcrypt.compareSync(password, users.password);
 
         if (!users) {
-          return res.status(404).send({ message: "User Not found." });
+          return res.status(404).send({
+            success: false,
+            message: "User Not found."
+          });
         } else if (!passwordIsValid) {
           return res.status(401).send({
-            accessToken: null,
+            success: false,
             message: "Invalid Password!",
           });
         }
@@ -48,23 +59,20 @@ module.exports = {
         });
 
         const data = {
-          id: users.id,
           name: users.name,
           email: users.email,
-          username: users.username,
-          phone_number: users.phone_number,
-          updatedAt: users.updatedAt,
-          createdAt: users.createdAt,
           accessToken: token,
         };
 
         res.status(200).send({
           success: true,
+          message: "Login Success",
           data,
         });
       })
       .catch((err) => {
-        res.status(500).send({ 
+        res.status(500).send({
+          success: false,
           message: err.message
         });
       });
